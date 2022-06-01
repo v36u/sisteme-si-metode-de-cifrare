@@ -12,6 +12,13 @@ using std::getline;
 #include <algorithm>
 using std::transform;
 using std::reverse;
+using std::sort;
+
+#include <vector>
+using std::vector;
+
+#include <cmath>
+using std::ceil;
 
 // ========= General Helpers =========
 
@@ -62,7 +69,7 @@ void AlegereCifrareDescifrare(callback callback_cifrare, callback callback_desci
 void AfisareText(const string& mesaj, const string& text, const bool afisare_raw = true)
 {
     cout << "\n====== " << mesaj << ":\n";
-    
+
     for (auto caracter : text)
     {
         cout << setw(3) << caracter;
@@ -77,7 +84,8 @@ void AfisareText(const string& mesaj, const string& text, const bool afisare_raw
 
     cout << '\n';
 
-    if (afisare_raw) {
+    if (afisare_raw)
+    {
         cout << "\nRaw: " << text << '\n';
     }
 }
@@ -308,11 +316,128 @@ void DescifrareVigenere()
 void CifrareTranspozitie()
 {
     auto mesaj = NormalizareText(CitireText("Text care trebuie cifrat"), LITERA_INLOCUITOARE);
+    auto parola = NormalizareText(CitireText("Parola"), LITERA_INLOCUITOARE);
+
+    AfisareText("Alfabetul clasic", ALFABET_CLASIC, false);
+
+    auto parola_sortata = string(parola);
+    sort(parola_sortata.begin(), parola_sortata.end());
+    auto indecsi_parola = vector<size_t>(parola.size(), 0);
+
+    cout << "\n====== " << "Parola sortata:\n";
+    for (char caracter : parola_sortata)
+    {
+        cout << setw(3) << caracter;
+    }
+    cout << '\n';
+    for (size_t index = 0; index < parola.size(); index++)
+    {
+        cout << setw(3) << index + 1;
+
+        for (size_t index_indecsi = 0; index_indecsi < indecsi_parola.size(); index_indecsi++)
+        {
+            if (indecsi_parola[index_indecsi])
+            {
+                continue;
+            }
+            if (parola[index_indecsi] == parola_sortata[index])
+            {
+                indecsi_parola[index_indecsi] = index + 1;
+                break;
+            }
+        }
+    }
+    cout << '\n';
+
+    cout << "\n====== " << "Parola initiala cu indecsii parolei sortate:\n";
+    for (char caracter : parola)
+    {
+        cout << setw(3) << caracter;
+    }
+    cout << '\n';
+    for (size_t index = 0; index < parola.size(); index++)
+    {
+        cout << setw(3) << indecsi_parola[index];
+    }
+    cout << '\n';
+
+    auto numar_linii = static_cast<size_t>(
+        ceil(static_cast<double>(mesaj.size()) / static_cast<double>(parola.size())));
+    cout << "\n====== " << "Mesajul scris pe " << numar_linii << " randuri de cate " << parola.size() <<
+        " caractere:\n";
+    auto matrice = vector<vector<char>>(numar_linii, vector<char>(parola.size(), LITERA_INLOCUITOARE));
+    for (size_t index = 0; index < parola.size(); index++)
+    {
+        cout << setw(3) << indecsi_parola[index];
+    }
+    cout << '\n';
+    size_t index_mesaj = 0;
+    for (auto& linie : matrice)
+    {
+        for (auto& coloana : linie)
+        {
+            if (index_mesaj < mesaj.size())
+            {
+                coloana = mesaj[index_mesaj];
+                index_mesaj++;
+            }
+            cout << setw(3) << coloana;
+        }
+        cout << '\n';
+    }
+    cout << '\n';
+
+    cout << "\n====== " << "Mesajul scris pe " << numar_linii << " randuri de cate " << parola.size() <<
+        " caractere, cu coloanele in ordine crescatoare in functie de indecsi:\n";
+    auto matrice_ordonata = vector<vector<char>>(numar_linii, vector<char>(parola.size(), LITERA_INLOCUITOARE));
+    for (size_t index_coloana = 1; index_coloana <= parola.size(); index_coloana++)
+    {
+        for (size_t index_indecsi = 0; index_indecsi < indecsi_parola.size(); index_indecsi++)
+        {
+            if (indecsi_parola[index_indecsi] == index_coloana)
+            {
+                for (size_t index_linie = 0; index_linie < numar_linii; index_linie++)
+                {
+                    matrice_ordonata[index_linie][index_coloana - 1] = matrice[index_linie][index_indecsi];
+                }
+                break;
+            }
+        }
+    }
+    for (size_t index = 0; index < parola.size(); index++)
+    {
+        cout << setw(3) << index + 1;
+    }
+    cout << '\n';
+
+    auto mesaj_cifrat = string();
+    for (auto& linie : matrice_ordonata)
+    {
+        for (auto& coloana : linie)
+        {
+            cout << setw(3) << coloana;
+        }
+        cout << '\n';
+    }
+    cout << '\n';
+
+    for (size_t coloana = 0; coloana < parola.size(); coloana++)
+    {
+        for (size_t linie = 0; linie < numar_linii; linie++)
+        {
+            mesaj_cifrat += matrice_ordonata[linie][coloana];
+        }
+    }
+
+    AfisareText("Mesajul cifrat", mesaj_cifrat);
 }
 
 void DescifrareTranspozitie()
 {
     auto mesaj = NormalizareText(CitireText("Text care trebuie descifrat"), LITERA_INLOCUITOARE);
+    auto parola = NormalizareText(CitireText("Parola"), LITERA_INLOCUITOARE);
+
+    AfisareText("Alfabetul clasic", ALFABET_CLASIC, false);
 }
 
 // ========= Galois =========
