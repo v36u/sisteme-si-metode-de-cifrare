@@ -11,6 +11,7 @@ using std::getline;
 
 #include <algorithm>
 using std::transform;
+using std::reverse;
 
 // ========= Helpers =========
 
@@ -77,14 +78,31 @@ void AfisareText(const string& mesaj, const string& text)
     cout << '\n';
 }
 
-string CitireText(const string& mesaj)
+string CitireText(const string& mesaj, char litera_inlocuitoare)
 {
+    if (litera_inlocuitoare >= 'a' && litera_inlocuitoare <= 'z')
+    {
+        litera_inlocuitoare -= 'a' - 'A';
+    }
+
     auto mesaj_input = string();
     cout << '\n' << mesaj << ": ";
     cin.ignore();
     getline(cin, mesaj_input);
     transform(mesaj_input.begin(), mesaj_input.end(), mesaj_input.begin(), ::toupper);
-    return mesaj_input;
+
+    auto ret = string();
+    for (auto caracter : mesaj_input)
+    {
+        if (caracter < 'A' || caracter > 'Z')
+        {
+            ret += litera_inlocuitoare;
+            continue;
+        }
+        ret += caracter;
+    }
+
+    return ret;
 }
 
 // ========= Cezar (Substitutie Monoalfabetica folosind un offset)  =========
@@ -101,55 +119,41 @@ string GetAlfabetShiftat(const int offset)
 
 void CifrareCezar()
 {
-    auto mesaj_input = CitireText("Text care trebuie cifrat");
-
     auto offset = 0;
     cout << "\nOffset: ";
     cin >> offset;
 
+    auto mesaj = CitireText("Text care trebuie cifrat", LITERA_INLOCUITOARE);
+
     AfisareText("Alfabetul clasic", ALFABET_CLASIC);
     AfisareText("Alfabetul shiftat", GetAlfabetShiftat(offset));
 
-    auto mesaj_initial = string();
     auto mesaj_cifrat = string();
-    for (auto caracter : mesaj_input) {
-        if (caracter < 65 || caracter > 90) {
-            mesaj_initial += LITERA_INLOCUITOARE;
-            mesaj_cifrat += (LITERA_INLOCUITOARE + offset - 'A') % 26 + 'A';
-            continue;
-        }
-        mesaj_initial += caracter;
+    for (auto caracter : mesaj) {
         mesaj_cifrat += (caracter + offset - 'A') % 26 + 'A';
     }
 
-    AfisareText("Mesajul initial", mesaj_initial);
+    AfisareText("Mesajul initial", mesaj);
     AfisareText("Mesajul cifrat", mesaj_cifrat);
 }
 
 void DescifrareCezar()
 {
-    auto mesaj_input = CitireText("Text care trebuie descifrat");
-
     auto offset = 0;
     cout << "\nOffset: ";
     cin >> offset;
 
+    auto mesaj = CitireText("Text care trebuie descifrat", (LITERA_INLOCUITOARE + offset - 'A') % 26 + 'A');
+
     AfisareText("Alfabetul clasic", ALFABET_CLASIC);
     AfisareText("Alfabetul shiftat", GetAlfabetShiftat(offset));
 
-    auto mesaj_initial = string();
     auto mesaj_descifrat = string();
-    for (auto caracter : mesaj_input) {
-        if (caracter < 65 || caracter > 90) {
-            mesaj_initial += LITERA_INLOCUITOARE;
-            mesaj_descifrat += LITERA_INLOCUITOARE;
-            continue;
-        }
-        mesaj_initial += caracter;
+    for (auto caracter : mesaj) {
         mesaj_descifrat += ((caracter - offset - 'A') % 26 + 26) % 26 + 'A';
     }
 
-    AfisareText("Mesajul initial", mesaj_initial);
+    AfisareText("Mesajul initial", mesaj);
     AfisareText("Mesajul descifrat", mesaj_descifrat);
 }
 
@@ -157,13 +161,36 @@ void DescifrareCezar()
 
 void CifrareSubstitutie()
 {
-    auto mesaj_input = CitireText("Text care trebuie cifrat");
+    auto parola = CitireText("Parola", LITERA_INLOCUITOARE);
+    auto mesaj = CitireText("Text care trebuie cifrat", LITERA_INLOCUITOARE);
 
+    AfisareText("Alfabetul clasic", ALFABET_CLASIC);
+
+    auto parola_cu_litere_unice = string();
+    for (auto caracter : parola) {
+        if (parola_cu_litere_unice.find(caracter) == string::npos) {
+            parola_cu_litere_unice += caracter;
+        }
+    }
+    AfisareText("Parola cu litere unice", parola_cu_litere_unice);
+
+    auto alfabet_de_cifrare = string(parola_cu_litere_unice);
+    for (auto caracter : ALFABET_CLASIC)
+    {
+        if (alfabet_de_cifrare.find(caracter) == string::npos) {
+            alfabet_de_cifrare += caracter;
+        }
+    }
+    reverse(alfabet_de_cifrare.begin(), alfabet_de_cifrare.end());
+    AfisareText("Alfabetul de criptare", parola_cu_litere_unice);
 }
 
 void DescifrareSubstitutie()
 {
-    auto mesaj_input = CitireText("Text care trebuie descifrat");
+    auto parola = CitireText("Parola", LITERA_INLOCUITOARE);
+    auto mesaj_input = CitireText("Text care trebuie descifrat", LITERA_INLOCUITOARE); // TODO: Change
+
+    AfisareText("Alfabetul clasic", ALFABET_CLASIC);
 
 }
 
@@ -171,36 +198,36 @@ void DescifrareSubstitutie()
 
 void CifrareVigenere()
 {
-    auto mesaj_input = CitireText("Text care trebuie cifrat");
+    auto mesaj_input = CitireText("Text care trebuie cifrat", LITERA_INLOCUITOARE);
 }
 
 void DescifrareVigenere()
 {
-    auto mesaj_input = CitireText("Text care trebuie descifrat");
+    auto mesaj_input = CitireText("Text care trebuie descifrat", LITERA_INLOCUITOARE);
 }
 
 // ========= Metoda Transpozitiei =========
 
 void CifrareTranspozitie()
 {
-    auto mesaj_input = CitireText("Text care trebuie cifrat");
+    auto mesaj_input = CitireText("Text care trebuie cifrat", LITERA_INLOCUITOARE);
 }
 
 void DescifrareTranspozitie()
 {
-    auto mesaj_input = CitireText("Text care trebuie descifrat");
+    auto mesaj_input = CitireText("Text care trebuie descifrat", LITERA_INLOCUITOARE);
 }
 
 // ========= Galois =========
 
 void CifrareGalois()
 {
-    auto mesaj_input = CitireText("Text care trebuie cifrat");
+    auto mesaj_input = CitireText("Text care trebuie cifrat", LITERA_INLOCUITOARE);
 }
 
 void DescifrareGalois()
 {
-    auto mesaj_input = CitireText("Text care trebuie descifrat");
+    auto mesaj_input = CitireText("Text care trebuie descifrat", LITERA_INLOCUITOARE);
 }
 
 int main()
