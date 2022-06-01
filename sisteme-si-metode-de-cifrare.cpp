@@ -13,7 +13,7 @@ using std::getline;
 using std::transform;
 using std::reverse;
 
-// ========= Helpers =========
+// ========= General Helpers =========
 
 const auto LITERA_INLOCUITOARE = 'Q';
 
@@ -37,25 +37,26 @@ void AlegereCifrareDescifrare(callback callback_cifrare, callback callback_desci
         switch (optiune)
         {
         case 0:
-        {
-            return;
-        }
+            {
+                return;
+            }
         case 1:
-        {
-            callback_cifrare();
-            return;
-        }
+            {
+                callback_cifrare();
+                return;
+            }
         case 2:
-        {
-            callback_descifrare();
-            return;
-        }
+            {
+                callback_descifrare();
+                return;
+            }
         default:
-        {
-            cout << "\nOptiune invalida.\n";
+            {
+                cout << "\nOptiune invalida.\n";
+            }
         }
-        }
-    } while (optiune != 0);
+    }
+    while (optiune != 0);
 }
 
 void AfisareText(const string& mesaj, const string& text)
@@ -78,21 +79,35 @@ void AfisareText(const string& mesaj, const string& text)
     cout << '\n';
 }
 
-string CitireText(const string& mesaj, char litera_inlocuitoare)
+string CitireText(const string& interfata)
+{
+    auto mesaj_input = string();
+    auto buffer = string();
+    cout << '\n' << interfata << ": ";
+
+    getline(cin, buffer);
+    if (buffer.empty() || buffer[0] == '\n' || buffer[0] == '\r' || buffer[0] == '\f')
+    {
+        getline(cin, mesaj_input);
+    }
+    else
+    {
+        mesaj_input = buffer;
+    }
+
+    transform(mesaj_input.begin(), mesaj_input.end(), mesaj_input.begin(), ::toupper);
+    return mesaj_input;
+}
+
+string NormalizareText(const string& text, char litera_inlocuitoare)
 {
     if (litera_inlocuitoare >= 'a' && litera_inlocuitoare <= 'z')
     {
         litera_inlocuitoare -= 'a' - 'A';
     }
 
-    auto mesaj_input = string();
-    cout << '\n' << mesaj << ": ";
-    cin.ignore();
-    getline(cin, mesaj_input);
-    transform(mesaj_input.begin(), mesaj_input.end(), mesaj_input.begin(), ::toupper);
-
     auto ret = string();
-    for (auto caracter : mesaj_input)
+    for (auto caracter : text)
     {
         if (caracter < 'A' || caracter > 'Z')
         {
@@ -119,17 +134,18 @@ string GetAlfabetShiftat(const int offset)
 
 void CifrareCezar()
 {
+    auto mesaj = NormalizareText(CitireText("Text care trebuie cifrat"), LITERA_INLOCUITOARE);
+
     auto offset = 0;
     cout << "\nOffset: ";
     cin >> offset;
-
-    auto mesaj = CitireText("Text care trebuie cifrat", LITERA_INLOCUITOARE);
 
     AfisareText("Alfabetul clasic", ALFABET_CLASIC);
     AfisareText("Alfabetul shiftat", GetAlfabetShiftat(offset));
 
     auto mesaj_cifrat = string();
-    for (auto caracter : mesaj) {
+    for (auto caracter : mesaj)
+    {
         mesaj_cifrat += (caracter + offset - 'A') % 26 + 'A';
     }
 
@@ -139,17 +155,20 @@ void CifrareCezar()
 
 void DescifrareCezar()
 {
+    auto mesaj = CitireText("Text care trebuie descifrat");
+
     auto offset = 0;
     cout << "\nOffset: ";
     cin >> offset;
 
-    auto mesaj = CitireText("Text care trebuie descifrat", (LITERA_INLOCUITOARE + offset - 'A') % 26 + 'A');
+    mesaj = NormalizareText(mesaj, (LITERA_INLOCUITOARE + offset - 'A') % 26 + 'A');
 
     AfisareText("Alfabetul clasic", ALFABET_CLASIC);
     AfisareText("Alfabetul shiftat", GetAlfabetShiftat(offset));
 
     auto mesaj_descifrat = string();
-    for (auto caracter : mesaj) {
+    for (auto caracter : mesaj)
+    {
         mesaj_descifrat += ((caracter - offset - 'A') % 26 + 26) % 26 + 'A';
     }
 
@@ -159,75 +178,105 @@ void DescifrareCezar()
 
 // ========= Metoda Substitutiei =========
 
-void CifrareSubstitutie()
+string GetAlfabetSubstitutie(const string& parola)
 {
-    auto parola = CitireText("Parola", LITERA_INLOCUITOARE);
-    auto mesaj = CitireText("Text care trebuie cifrat", LITERA_INLOCUITOARE);
-
-    AfisareText("Alfabetul clasic", ALFABET_CLASIC);
-
     auto parola_cu_litere_unice = string();
-    for (auto caracter : parola) {
-        if (parola_cu_litere_unice.find(caracter) == string::npos) {
+    for (auto caracter : parola)
+    {
+        if (parola_cu_litere_unice.find(caracter) == string::npos)
+        {
             parola_cu_litere_unice += caracter;
         }
     }
     AfisareText("Parola cu litere unice", parola_cu_litere_unice);
 
-    auto alfabet_de_cifrare = string(parola_cu_litere_unice);
+    auto alfabet_de_substitutie = string(parola_cu_litere_unice);
     for (auto caracter : ALFABET_CLASIC)
     {
-        if (alfabet_de_cifrare.find(caracter) == string::npos) {
-            alfabet_de_cifrare += caracter;
+        if (alfabet_de_substitutie.find(caracter) == string::npos)
+        {
+            alfabet_de_substitutie += caracter;
         }
     }
-    reverse(alfabet_de_cifrare.begin(), alfabet_de_cifrare.end());
-    AfisareText("Alfabetul de criptare", parola_cu_litere_unice);
+    reverse(alfabet_de_substitutie.begin(), alfabet_de_substitutie.end());
+    AfisareText("Alfabetul de substitutie", alfabet_de_substitutie);
+
+    return alfabet_de_substitutie;
+}
+
+void CifrareSubstitutie()
+{
+    auto mesaj = NormalizareText(CitireText("Text care trebuie cifrat"), LITERA_INLOCUITOARE);
+    auto parola = NormalizareText(CitireText("Parola"), LITERA_INLOCUITOARE);
+
+    AfisareText("Alfabetul clasic", ALFABET_CLASIC);
+
+    auto alfabet_de_substitutie = GetAlfabetSubstitutie(parola);
+
+    auto mesaj_cifrat = string();
+    for (auto caracter : mesaj)
+    {
+        mesaj_cifrat += alfabet_de_substitutie[ALFABET_CLASIC.find(caracter)];
+    }
+
+    AfisareText("Mesajul initial", mesaj);
+    AfisareText("Mesajul cifrat", mesaj_cifrat);
 }
 
 void DescifrareSubstitutie()
 {
-    auto parola = CitireText("Parola", LITERA_INLOCUITOARE);
-    auto mesaj_input = CitireText("Text care trebuie descifrat", LITERA_INLOCUITOARE); // TODO: Change
+    auto mesaj = CitireText("Text care trebuie descifrat");
+    auto parola = NormalizareText(CitireText("Parola"), LITERA_INLOCUITOARE);
 
     AfisareText("Alfabetul clasic", ALFABET_CLASIC);
 
+    auto alfabet_de_substitutie = GetAlfabetSubstitutie(parola);
+    mesaj = NormalizareText(mesaj, ALFABET_CLASIC[alfabet_de_substitutie.find(LITERA_INLOCUITOARE)]);
+
+    auto mesaj_descifrat = string();
+    for (auto caracter : mesaj)
+    {
+        mesaj_descifrat += ALFABET_CLASIC[alfabet_de_substitutie.find(caracter)];
+    }
+
+    AfisareText("Mesajul initial", mesaj);
+    AfisareText("Mesajul descifrat", mesaj_descifrat);
 }
 
 // ========= Sisteme Polialfabetice (Vigenere) =========
 
 void CifrareVigenere()
 {
-    auto mesaj_input = CitireText("Text care trebuie cifrat", LITERA_INLOCUITOARE);
+    auto mesaj_input = NormalizareText(CitireText("Text care trebuie cifrat"), LITERA_INLOCUITOARE);
 }
 
 void DescifrareVigenere()
 {
-    auto mesaj_input = CitireText("Text care trebuie descifrat", LITERA_INLOCUITOARE);
+    auto mesaj_input = NormalizareText(CitireText("Text care trebuie descifrat"), LITERA_INLOCUITOARE);
 }
 
 // ========= Metoda Transpozitiei =========
 
 void CifrareTranspozitie()
 {
-    auto mesaj_input = CitireText("Text care trebuie cifrat", LITERA_INLOCUITOARE);
+    auto mesaj_input = NormalizareText(CitireText("Text care trebuie cifrat"), LITERA_INLOCUITOARE);
 }
 
 void DescifrareTranspozitie()
 {
-    auto mesaj_input = CitireText("Text care trebuie descifrat", LITERA_INLOCUITOARE);
+    auto mesaj_input = NormalizareText(CitireText("Text care trebuie descifrat"), LITERA_INLOCUITOARE);
 }
 
 // ========= Galois =========
 
 void CifrareGalois()
 {
-    auto mesaj_input = CitireText("Text care trebuie cifrat", LITERA_INLOCUITOARE);
+    auto mesaj_input = NormalizareText(CitireText("Text care trebuie cifrat"), LITERA_INLOCUITOARE);
 }
 
 void DescifrareGalois()
 {
-    auto mesaj_input = CitireText("Text care trebuie descifrat", LITERA_INLOCUITOARE);
+    auto mesaj_input = NormalizareText(CitireText("Text care trebuie descifrat"), LITERA_INLOCUITOARE);
 }
 
 int main()
@@ -249,41 +298,42 @@ int main()
         switch (optiune)
         {
         case 0:
-        {
-            cout << "\nLa revedere!\n";
-        }
-        break;
+            {
+                cout << "\nLa revedere!\n";
+            }
+            break;
         case 1:
-        {
-            AlegereCifrareDescifrare(CifrareCezar, DescifrareCezar);
-        }
-        break;
+            {
+                AlegereCifrareDescifrare(CifrareCezar, DescifrareCezar);
+            }
+            break;
         case 2:
-        {
-            AlegereCifrareDescifrare(CifrareSubstitutie, DescifrareSubstitutie);
-        }
-        break;
+            {
+                AlegereCifrareDescifrare(CifrareSubstitutie, DescifrareSubstitutie);
+            }
+            break;
         case 3:
-        {
-            AlegereCifrareDescifrare(CifrareVigenere, DescifrareVigenere);
-        }
-        break;
+            {
+                AlegereCifrareDescifrare(CifrareVigenere, DescifrareVigenere);
+            }
+            break;
         case 4:
-        {
-            AlegereCifrareDescifrare(CifrareTranspozitie, DescifrareTranspozitie);
-        }
-        break;
+            {
+                AlegereCifrareDescifrare(CifrareTranspozitie, DescifrareTranspozitie);
+            }
+            break;
         case 5:
-        {
-            AlegereCifrareDescifrare(CifrareGalois, DescifrareGalois);
-        }
-        break;
+            {
+                AlegereCifrareDescifrare(CifrareGalois, DescifrareGalois);
+            }
+            break;
         default:
-        {
-            cout << "\nOptiune invalida.\n";
+            {
+                cout << "\nOptiune invalida.\n";
+            }
         }
-        }
-    } while (optiune != 0);
+    }
+    while (optiune != 0);
 
     return EXIT_SUCCESS;
 }
