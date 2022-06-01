@@ -560,7 +560,7 @@ int main()
         cout << "\n2. Metoda Substitutiei";
         cout << "\n3. Sisteme Polialfabetice (Vigenere)";
         cout << "\n4. Metoda Transpozitiei";
-        cout << "\n5. Galois";
+        // cout << "\n5. Galois";
         cout << "\n0. Iesire";
         cout << "\n~> ";
 
