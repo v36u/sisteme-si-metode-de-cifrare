@@ -72,6 +72,10 @@ void AfisareText(const string& mesaj, const string& text, const bool afisare_raw
 
     for (auto caracter : text)
     {
+        if (caracter < 'A' || caracter > 'Z')
+        {
+            continue;
+        }
         cout << setw(3) << caracter;
     }
 
@@ -79,6 +83,10 @@ void AfisareText(const string& mesaj, const string& text, const bool afisare_raw
 
     for (auto caracter : text)
     {
+        if (caracter < 'A' || caracter > 'Z')
+        {
+            continue;
+        }
         cout << setw(3) << caracter - 'A';
     }
 
@@ -363,6 +371,14 @@ void CifrareTranspozitie()
 {
     auto mesaj = NormalizareText(CitireText("Text care trebuie cifrat"), LITERA_INLOCUITOARE);
     auto parola = NormalizareText(CitireText("Parola"), LITERA_INLOCUITOARE);
+    auto grupare = 5;
+    cout << "\nNumar litere in fiecare grup al mesajului cifrat: ";
+    cin >> grupare;
+
+    if (grupare == 0)
+    {
+        grupare = -1;
+    }
 
     AfisareText("Alfabetul clasic", ALFABET_CLASIC, false);
 
@@ -432,12 +448,18 @@ void CifrareTranspozitie()
     // === Mesaj cifrat
 
     auto mesaj_cifrat = string();
-
+    auto counter_grupare = 0;
     for (size_t coloana = 0; coloana < parola.size(); coloana++)
     {
         for (size_t linie = 0; linie < numar_linii; linie++)
         {
+            if (counter_grupare == grupare)
+            {
+                mesaj_cifrat += ',';
+                counter_grupare = 0;
+            }
             mesaj_cifrat += matrice_ordonata[linie][coloana];
+            counter_grupare++;
         }
     }
 
@@ -500,7 +522,7 @@ void DescifrareTranspozitie()
         for (size_t index_linie = 0; index_linie < numar_linii; index_linie++)
         {
             matrice_ordonata[index_linie][index_index_parola] =
-                matrice[index_linie][indecsi_parola[index_index_parola]- 1];
+                matrice[index_linie][indecsi_parola[index_index_parola] - 1];
         }
     }
 
@@ -521,7 +543,6 @@ void DescifrareTranspozitie()
     // === Mesaj descifrat
 
     auto mesaj_descifrat = string();
-
     for (auto& linie : matrice_ordonata)
     {
         for (auto& coloana : linie)
@@ -538,18 +559,6 @@ void DescifrareTranspozitie()
     AfisareText("Mesajul descifrat", mesaj_descifrat);
 }
 
-// ========= Galois =========
-
-void CifrareGalois()
-{
-    auto mesaj = NormalizareText(CitireText("Text care trebuie cifrat"), LITERA_INLOCUITOARE);
-}
-
-void DescifrareGalois()
-{
-    auto mesaj = NormalizareText(CitireText("Text care trebuie descifrat"), LITERA_INLOCUITOARE);
-}
-
 int main()
 {
     auto optiune = 0;
@@ -560,7 +569,6 @@ int main()
         cout << "\n2. Metoda Substitutiei";
         cout << "\n3. Sisteme Polialfabetice (Vigenere)";
         cout << "\n4. Metoda Transpozitiei";
-        // cout << "\n5. Galois";
         cout << "\n0. Iesire";
         cout << "\n~> ";
 
@@ -591,11 +599,6 @@ int main()
         case 4:
             {
                 AlegereCifrareDescifrare(CifrareTranspozitie, DescifrareTranspozitie);
-            }
-            break;
-        case 5:
-            {
-                AlegereCifrareDescifrare(CifrareGalois, DescifrareGalois);
             }
             break;
         default:
