@@ -313,13 +313,8 @@ void DescifrareVigenere()
 
 // ========= Metoda Transpozitiei =========
 
-void CifrareTranspozitie()
+vector<size_t> GetIndecsiParola(const string& parola)
 {
-    auto mesaj = NormalizareText(CitireText("Text care trebuie cifrat"), LITERA_INLOCUITOARE);
-    auto parola = NormalizareText(CitireText("Parola"), LITERA_INLOCUITOARE);
-
-    AfisareText("Alfabetul clasic", ALFABET_CLASIC, false);
-
     auto parola_sortata = string(parola);
     sort(parola_sortata.begin(), parola_sortata.end());
     auto indecsi_parola = vector<size_t>(parola.size(), 0);
@@ -361,6 +356,20 @@ void CifrareTranspozitie()
     }
     cout << '\n';
 
+    return indecsi_parola;
+}
+
+void CifrareTranspozitie()
+{
+    auto mesaj = NormalizareText(CitireText("Text care trebuie cifrat"), LITERA_INLOCUITOARE);
+    auto parola = NormalizareText(CitireText("Parola"), LITERA_INLOCUITOARE);
+
+    AfisareText("Alfabetul clasic", ALFABET_CLASIC, false);
+
+    auto indecsi_parola = GetIndecsiParola(parola);
+
+    // === Matrice inițială
+
     auto numar_linii = static_cast<size_t>(
         ceil(static_cast<double>(mesaj.size()) / static_cast<double>(parola.size())));
     cout << "\n====== " << "Mesajul scris pe " << numar_linii << " randuri de cate " << parola.size() <<
@@ -385,7 +394,8 @@ void CifrareTranspozitie()
         }
         cout << '\n';
     }
-    cout << '\n';
+
+    // === Matrice transpusă
 
     cout << "\n====== " << "Mesajul scris pe " << numar_linii << " randuri de cate " << parola.size() <<
         " caractere, cu coloanele in ordine crescatoare in functie de indecsi:\n";
@@ -404,13 +414,12 @@ void CifrareTranspozitie()
             }
         }
     }
+
     for (size_t index = 0; index < parola.size(); index++)
     {
         cout << setw(3) << index + 1;
     }
     cout << '\n';
-
-    auto mesaj_cifrat = string();
     for (auto& linie : matrice_ordonata)
     {
         for (auto& coloana : linie)
@@ -419,7 +428,10 @@ void CifrareTranspozitie()
         }
         cout << '\n';
     }
-    cout << '\n';
+
+    // === Mesaj cifrat
+
+    auto mesaj_cifrat = string();
 
     for (size_t coloana = 0; coloana < parola.size(); coloana++)
     {
@@ -438,6 +450,92 @@ void DescifrareTranspozitie()
     auto parola = NormalizareText(CitireText("Parola"), LITERA_INLOCUITOARE);
 
     AfisareText("Alfabetul clasic", ALFABET_CLASIC, false);
+
+    auto indecsi_parola = GetIndecsiParola(parola);
+
+    // === Matrice inițială
+
+    auto numar_linii = static_cast<size_t>(
+        ceil(static_cast<double>(mesaj.size()) / static_cast<double>(parola.size())));
+    cout << "\n====== " << "Mesajul scris pe " << parola.size() << " coloane de cate " << numar_linii <<
+        " caractere:\n";
+    auto matrice = vector<vector<char>>(numar_linii, vector<char>(parola.size(), LITERA_INLOCUITOARE));
+    for (size_t index = 0; index < parola.size(); index++)
+    {
+        cout << setw(3) << index + 1;
+    }
+    cout << '\n';
+    size_t index_mesaj = 0;
+    for (size_t coloana = 0; coloana < parola.size(); coloana++)
+    {
+        for (size_t linie = 0; linie < numar_linii; linie++)
+        {
+            if (index_mesaj < mesaj.size())
+            {
+                matrice[linie][coloana] = mesaj[index_mesaj];
+                index_mesaj++;
+            }
+            else
+            {
+                break;
+            }
+        }
+    }
+    for (auto& linie : matrice)
+    {
+        for (auto& coloana : linie)
+        {
+            cout << setw(3) << coloana;
+        }
+        cout << '\n';
+    }
+
+    // === Matrice transpusă
+
+    cout << "\n====== " << "Mesajul scris pe " << parola.size() << " coloane de cate " << numar_linii <<
+        " caractere, cu coloanele in ordinea originala a parolei ordonate:\n";
+    auto matrice_ordonata = vector<vector<char>>(numar_linii, vector<char>(parola.size(), LITERA_INLOCUITOARE));
+    for (size_t index_index_parola = 0; index_index_parola < parola.size(); index_index_parola++)
+    {
+        for (size_t index_linie = 0; index_linie < numar_linii; index_linie++)
+        {
+            matrice_ordonata[index_linie][index_index_parola] =
+                matrice[index_linie][indecsi_parola[index_index_parola]- 1];
+        }
+    }
+
+    for (size_t index = 0; index < parola.size(); index++)
+    {
+        cout << setw(3) << indecsi_parola[index];
+    }
+    cout << '\n';
+    for (auto& linie : matrice_ordonata)
+    {
+        for (auto& coloana : linie)
+        {
+            cout << setw(3) << coloana;
+        }
+        cout << '\n';
+    }
+
+    // === Mesaj descifrat
+
+    auto mesaj_descifrat = string();
+
+    for (auto& linie : matrice_ordonata)
+    {
+        for (auto& coloana : linie)
+        {
+            mesaj_descifrat += coloana;
+        }
+    }
+
+    while (*(mesaj_descifrat.end() - 1) == LITERA_INLOCUITOARE)
+    {
+        mesaj_descifrat.pop_back();
+    }
+
+    AfisareText("Mesajul descifrat", mesaj_descifrat);
 }
 
 // ========= Galois =========
