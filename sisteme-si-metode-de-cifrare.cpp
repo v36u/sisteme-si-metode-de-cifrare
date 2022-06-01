@@ -77,6 +77,16 @@ void AfisareText(const string& mesaj, const string& text)
     cout << '\n';
 }
 
+string CitireText(const string& mesaj)
+{
+    auto mesaj_input = string();
+    cout << '\n' << mesaj << ": ";
+    cin.ignore();
+    getline(cin, mesaj_input);
+    transform(mesaj_input.begin(), mesaj_input.end(), mesaj_input.begin(), ::toupper);
+    return mesaj_input;
+}
+
 // ========= Cezar (Substitutie Monoalfabetica folosind un offset)  =========
 
 string GetAlfabetShiftat(const int offset)
@@ -91,11 +101,7 @@ string GetAlfabetShiftat(const int offset)
 
 void CifrareCezar()
 {
-    auto mesaj_input = string();
-    cout << "\nText care trebuie cifrat: ";
-    cin.ignore();
-    getline(cin, mesaj_input);
-    transform(mesaj_input.begin(), mesaj_input.end(), mesaj_input.begin(), ::toupper);
+    auto mesaj_input = CitireText("Text care trebuie cifrat");
 
     auto offset = 0;
     cout << "\nOffset: ";
@@ -122,11 +128,7 @@ void CifrareCezar()
 
 void DescifrareCezar()
 {
-    auto mesaj_input = string();
-    cout << "\nText care trebuie descifrat: ";
-    cin.ignore();
-    getline(cin, mesaj_input);
-    transform(mesaj_input.begin(), mesaj_input.end(), mesaj_input.begin(), ::toupper);
+    auto mesaj_input = CitireText("Text care trebuie descifrat");
 
     auto offset = 0;
     cout << "\nOffset: ";
@@ -140,7 +142,7 @@ void DescifrareCezar()
     for (auto caracter : mesaj_input) {
         if (caracter < 65 || caracter > 90) {
             mesaj_initial += LITERA_INLOCUITOARE;
-            mesaj_descifrat += ((LITERA_INLOCUITOARE - offset - 'A') % 26 + 26) % 26 + 'A';
+            mesaj_descifrat += LITERA_INLOCUITOARE;
             continue;
         }
         mesaj_initial += caracter;
@@ -155,40 +157,50 @@ void DescifrareCezar()
 
 void CifrareSubstitutie()
 {
+    auto mesaj_input = CitireText("Text care trebuie cifrat");
+
 }
 
 void DescifrareSubstitutie()
 {
+    auto mesaj_input = CitireText("Text care trebuie descifrat");
+
 }
 
 // ========= Sisteme Polialfabetice (Vigenere) =========
 
 void CifrareVigenere()
 {
+    auto mesaj_input = CitireText("Text care trebuie cifrat");
 }
 
 void DescifrareVigenere()
 {
+    auto mesaj_input = CitireText("Text care trebuie descifrat");
 }
 
 // ========= Metoda Transpozitiei =========
 
 void CifrareTranspozitie()
 {
+    auto mesaj_input = CitireText("Text care trebuie cifrat");
 }
 
 void DescifrareTranspozitie()
 {
+    auto mesaj_input = CitireText("Text care trebuie descifrat");
 }
 
 // ========= Galois =========
 
 void CifrareGalois()
 {
+    auto mesaj_input = CitireText("Text care trebuie cifrat");
 }
 
 void DescifrareGalois()
 {
+    auto mesaj_input = CitireText("Text care trebuie descifrat");
 }
 
 int main()
