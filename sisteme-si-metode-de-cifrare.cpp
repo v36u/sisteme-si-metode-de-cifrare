@@ -13,9 +13,6 @@ using std::getline;
 using std::transform;
 using std::reverse;
 
-#include <cmath>
-using std::abs;
-
 // ========= General Helpers =========
 
 const auto LITERA_INLOCUITOARE = 'Q';
@@ -70,17 +67,19 @@ void AfisareText(const string& mesaj, const string& text, const bool afisare_raw
     {
         cout << setw(3) << caracter;
     }
+
     cout << '\n';
+
     for (auto caracter : text)
     {
         cout << setw(3) << caracter - 'A';
     }
 
+    cout << '\n';
+
     if (afisare_raw) {
         cout << "\nRaw: " << text << '\n';
     }
-
-    cout << '\n';
 }
 
 string CitireText(const string& interfata)
@@ -284,7 +283,12 @@ void DescifrareVigenere()
     auto parola_repetata = string();
     for (size_t index = 0; index < mesaj.size(); index++)
     {
-        parola_repetata += parola[index % parola.size()];
+        auto caracter_curent = parola[index % parola.size()];
+        if (mesaj[index] < 'A' || mesaj[index] > 'Z')
+        {
+            mesaj[index] = ((LITERA_INLOCUITOARE - 'A') + (caracter_curent - 'A') + 26) % 26 + 'A';
+        }
+        parola_repetata += caracter_curent;
     }
 
     AfisareText("Mesajul initial", mesaj, false);
@@ -293,7 +297,7 @@ void DescifrareVigenere()
     auto mesaj_cifrat = string();
     for (size_t index = 0; index < mesaj.size(); index++)
     {
-        mesaj_cifrat += abs((mesaj[index] - 'A') - (parola_repetata[index] - 'A')) % 26 + 'A';
+        mesaj_cifrat += ((mesaj[index] - 'A') - (parola_repetata[index] - 'A') + 26) % 26 + 'A';
     }
 
     AfisareText("Mesajul cifrat", mesaj_cifrat);
